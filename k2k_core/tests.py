@@ -41,7 +41,9 @@ from k2k_core.services import (
     AIGradingEngine,
     DynamicPricingEngine,
     AgriFintechSettlementEngine,
-    DynamicRoutingEngine
+    DynamicRoutingEngine,
+    WeatherIntelligenceEngine,
+    VoiceAssistantIntelligenceEngine
 )
 
 
@@ -378,4 +380,60 @@ class K2KCoreArchitectureTests(TestCase):
         self.assertIn('advisory', res.data)
         self.assertIn('temperature_celsius', res.data['telemetry'])
         self.assertIn('harvest_window', res.data['advisory'])
+
+    def test_voice_assistant_marathi_intent_execution(self):
+        result = VoiceAssistantIntelligenceEngine.process_voice_transcript(
+            transcript="मी 150 किलो टोमॅटो कापणी केली आहे",
+            lang="mr",
+            farmer=self.farmer
+        )
+        self.assertIn(result['intent'], ['LOG_HARVEST', 'CHECK_PRICE'])
+        self.assertIn('voice_reply_text', result)
+        self.assertEqual(result['language'], 'mr')
+        self.assertTrue(len(result['voice_reply_text']) > 10)
+
+    def test_script_language_auto_detection(self):
+        # Gurmukhi script -> Punjabi
+        self.assertEqual(VoiceAssistantIntelligenceEngine.detect_script_language("ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ਜੀ"), "pa")
+        # Tamil script -> Tamil
+        self.assertEqual(VoiceAssistantIntelligenceEngine.detect_script_language("வணக்கம் அய்யா"), "ta")
+        # Telugu script -> Telugu
+        self.assertEqual(VoiceAssistantIntelligenceEngine.detect_script_language("నమస్కారం గారు"), "te")
+        # Gujarati script -> Gujarati
+        self.assertEqual(VoiceAssistantIntelligenceEngine.detect_script_language("નમસ્તે ભાઈ"), "gu")
+        # Kannada script -> Kannada
+        self.assertEqual(VoiceAssistantIntelligenceEngine.detect_script_language("ನಮಸ್ಕಾರ ಅವರೇ"), "kn")
+
+    def test_multilingual_voice_assistant_all_8_languages(self):
+        test_samples = [
+            ("te", "ఈరోజు టమోటా ధర ఎంత ఉంది?", "CHECK_PRICE"),
+            ("ta", "இன்று தக்காளி விலை என்ன?", "CHECK_PRICE"),
+            ("kn", "ಇಂದು ಟೊಮೆಟೊ ಬೆಲೆ ಎಷ್ಟು?", "CHECK_PRICE"),
+            ("pa", "ਮੈਨੂੰ ਬੀਜ ਅਤੇ ਖਾਦ ਲਈ ਲੋਨ ਚਾਹੀਦਾ ਹੈ", "INPUT_FINANCING"),
+            ("gu", "મારી પાસે 150 કિલો ટામેટાં તૈયાર છે", "LOG_HARVEST"),
+            ("en", "Check current price of tomato", "CHECK_PRICE"),
+        ]
+        for lang, phrase, expected_intent in test_samples:
+            res = VoiceAssistantIntelligenceEngine.process_voice_transcript(phrase, lang, self.farmer)
+            self.assertIn('voice_reply_text', res)
+            self.assertEqual(res['language'], lang)
+            self.assertTrue(len(res['voice_reply_text']) > 5)
+
+
+    def test_ai_grading_image_scan_with_gemini_vision(self):
+        import io
+        from PIL import Image
+        img_byte_arr = io.BytesIO()
+        img = Image.new('RGB', (120, 120), color='green')
+        img.save(img_byte_arr, format='JPEG')
+        img_byte_arr.seek(0)
+
+        record = AIGradingEngine.analyze_crop_scan(
+            batch=self.batch,
+            image_file=img_byte_arr
+        )
+        self.assertIsNotNone(record)
+        self.assertGreaterEqual(record.confidence_score, Decimal('0.00'))
+        self.assertIn(record.final_grade, [CommercialGrade.GRADE_A, CommercialGrade.GRADE_B, CommercialGrade.GRADE_C, CommercialGrade.REJECT])
+
 

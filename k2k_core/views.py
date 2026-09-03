@@ -53,7 +53,8 @@ from k2k_core.services import (
     DynamicPricingEngine,
     AgriFintechSettlementEngine,
     DynamicRoutingEngine,
-    WeatherIntelligenceEngine
+    WeatherIntelligenceEngine,
+    VoiceAssistantIntelligenceEngine
 )
 
 
@@ -79,7 +80,7 @@ class AIGradingScanView(APIView):
         # Simulation or image upload
         image_file = serializer.validated_data.get('image')
         sim_params = None
-        if 'simulation_confidence_score' in serializer.validated_data or 'simulation_size_uniformity' in serializer.validated_data:
+        if not image_file and ('simulation_confidence_score' in serializer.validated_data or 'simulation_size_uniformity' in serializer.validated_data):
             sim_params = {
                 'size_uniformity': serializer.validated_data.get('simulation_size_uniformity', 88.0),
                 'color_uniformity': serializer.validated_data.get('simulation_color_uniformity', 90.0),
@@ -468,69 +469,12 @@ class VoiceAssistantCommandView(APIView):
         if not farmer:
             farmer = User.objects.filter(role=UserRole.FARMER).first()
 
-        transcript_lower = transcript.lower()
-
-        # Simple NLP Keyword-Intent Dispatcher
-        if any(w in transcript_lower for w in ['भाव', 'रेट', 'दाम', 'price', 'rate', 'bhaav']):
-            # Price Query
-            crop = Crop.objects.filter(name__icontains='Tomato').first() or Crop.objects.first()
-            if 'शिमला' in transcript_lower or 'capsicum' in transcript_lower or 'pepper' in transcript_lower:
-                crop = Crop.objects.filter(name__icontains='Pepper').first() or crop
-            elif 'पालक' in transcript_lower or 'spinach' in transcript_lower:
-                crop = Crop.objects.filter(name__icontains='Spinach').first() or crop
-
-            speech_reply = f"आज {crop.name} का न्यूनतम गारंटीड एमएसपी भाव ₹{crop.base_msp_price_per_kg} प्रति किलो है, और ग्रेड ए का भाव ₹{float(crop.market_benchmark_price_per_kg) * 1.25:.1f} प्रति किलो तक मिल रहा है।"
-            return Response({
-                "intent": "CHECK_PRICE",
-                "detected_crop": crop.name,
-                "base_msp_floor": float(crop.base_msp_price_per_kg),
-                "market_benchmark": float(crop.market_benchmark_price_per_kg),
-                "voice_reply_text": speech_reply,
-                "language": lang
-            })
-
-        elif any(w in transcript_lower for w in ['तोड़ी', 'कटाई', 'harvest', 'log', 'deposit', 'kilo', 'किलो']):
-            # Harvest Drop-off intent
-            crop = Crop.objects.first()
-            hub = MicroHub.objects.first()
-            batch = ProduceBatch.objects.create(
-                farmer=farmer,
-                crop=crop,
-                current_hub=hub,
-                initial_quantity_kg=Decimal('200.00'),
-                current_status=BatchStatus.HARVESTED
-            )
-            speech_reply = f"आपका 200 किलो {crop.name} का लॉट सफलतापूर्वक दर्ज हो गया है। कृपया इसे नजदीकी {hub.name} पर दोपहर 12 बजे से पहले जमा करें।"
-            return Response({
-                "intent": "LOG_HARVEST",
-                "batch_id": batch.batch_id,
-                "assigned_hub": hub.name,
-                "allocated_kg": 200.0,
-                "voice_reply_text": speech_reply,
-                "language": lang
-            })
-
-        elif any(w in transcript_lower for w in ['खाद', 'बीज', 'लोन', 'loan', 'fertilizer', 'seed', 'credit']):
-            # Input Financing intent
-            loan = InputLoan.objects.filter(farmer=farmer, status=InputLoan.InputLoanStatus.ACTIVE).first()
-            speech_reply = "आपकी K2K फार्म विश्वसनीयता रेटिंग 88% है। आप ₹15,000 तक के प्रमाणित हाइब्रिड बीज और जैविक खाद बिना ब्याज के ले सकते हैं। फसल कटने पर भुगतान अपने आप कट जाएगा।"
-            return Response({
-                "intent": "INPUT_FINANCING",
-                "eligibility_amount": 15000.0,
-                "voice_reply_text": speech_reply,
-                "language": lang
-            })
-
-        else:
-            # Default Wallet / General Assistance
-            wallet, _ = FarmerWallet.objects.get_or_create(farmer=farmer)
-            speech_reply = f"नमस्ते {farmer.first_name or farmer.username} जी, आपके K2K वॉलेट में वर्तमान शेष राशि ₹{float(wallet.current_balance)} है। क्या आप आज फसल का भाव जानना चाहते हैं?"
-            return Response({
-                "intent": "WALLET_STATUS",
-                "wallet_balance": float(wallet.current_balance),
-                "voice_reply_text": speech_reply,
-                "language": lang
-            })
+        result = VoiceAssistantIntelligenceEngine.process_voice_transcript(
+            transcript=transcript,
+            lang=lang,
+            farmer=farmer
+        )
+        return Response(result, status=status.HTTP_200_OK)
 
 
 # ==============================================================================

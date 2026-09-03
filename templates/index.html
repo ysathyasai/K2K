@@ -745,7 +745,9 @@
       position: fixed;
       bottom: 95px;
       right: 28px;
-      width: 360px;
+      width: 390px;
+      max-height: 85vh;
+      overflow-y: auto;
       background: var(--bg-white);
       border: 1px solid var(--border-light);
       border-radius: var(--radius-lg);
@@ -1419,35 +1421,78 @@
 
   <!-- VOICE ASSISTANT SLIDE-UP DRAWER -->
   <div id="voice-drawer-panel" class="voice-drawer">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-      <h3 style="font-size:1rem; font-weight:700; color:var(--agri-green-dark); display:flex; align-items:center; gap:0.4rem;">
-        🎙️ Farmer Voice Assistant
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+      <h3 style="font-size:0.95rem; font-weight:700; color:var(--agri-green-dark); display:flex; align-items:center; gap:0.4rem;">
+        🎙️ Farmer Regional Voice Assistant
       </h3>
       <button onclick="toggleVoiceDrawer()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#64748b;">✕</button>
     </div>
 
-    <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.75rem;">
-      Speak in Hindi, Marathi, Telugu, or English to check prices or log harvests:
-    </p>
+    <!-- Active Regional Language Selector -->
+    <div style="margin-bottom:0.75rem;">
+      <label style="font-size:0.72rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:0.25rem;">
+        🗣️ SELECT REGIONAL DIALECT / भाषा:
+      </label>
+      <select id="voice-lang-select" class="form-control" style="font-size:0.78rem; padding:0.4rem 0.6rem; border-radius:6px; background:#ffffff;" onchange="onVoiceLanguageChange()">
+        <option value="auto" selected>🌐 Auto-Detect Language (स्वचालित पहचान)</option>
+        <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+        <option value="mr">🌾 मराठी (Marathi)</option>
+        <option value="te">🚜 తెలుగు (Telugu)</option>
+        <option value="ta">🌿 தமிழ் (Tamil)</option>
+        <option value="kn">🍃 ಕನ್ನಡ (Kannada)</option>
+        <option value="pa">🌾 ਪੰਜਾਬੀ (Punjabi)</option>
+        <option value="gu">🥜 ગુજરાતી (Gujarati)</option>
+        <option value="en">🌐 English (Indian)</option>
+      </select>
+    </div>
 
-    <div style="display:flex; flex-direction:column; gap:0.35rem; margin-bottom:0.75rem;">
-      <button class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.6rem; justify-content:flex-start;" onclick="sendVoicePrompt('आज टमाटर का क्या भाव है?', 'hi')">
-        🗣️ "आज टमाटर का क्या भाव है?"
+    <!-- Quick Prompts Across All 8 Languages -->
+    <p style="font-size:0.72rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
+      ⚡ QUICK REGIONAL PROMPTS (Click to Test):
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.3rem; margin-bottom:0.75rem; max-height:190px; overflow-y:auto; padding-right:4px;">
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('आज टमाटर का क्या भाव है?', 'hi')">
+        🇮🇳 हिन्दी: "आज टमाटर का क्या भाव है?"
       </button>
-      <button class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.6rem; justify-content:flex-start;" onclick="sendVoicePrompt('मैंने 200 किलो शिमला मिर्च की कटाई की है', 'hi')">
-        🗣️ "200 किलो शिमला मिर्च कटाई"
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('मी 200 किलो शिमला मिरची तोडली आहे', 'mr')">
+        🌾 मराठी: "मी 200 किलो शिमला मिरची तोडली आहे"
       </button>
-      <button class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.6rem; justify-content:flex-start;" onclick="sendVoicePrompt('मला खत आणि बियाण्यासाठी कर्ज हवे आहे', 'mr')">
-        🗣️ "कर्ज हवे आहे (मराठी)"
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('ఈరోజు టమోటా ధర ఎంత ఉంది?', 'te')">
+        🚜 తెలుగు: "ఈరోజు టమోటా ధర ఎంత ఉంది?"
+      </button>
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('இன்று தக்காளி விலை என்ன?', 'ta')">
+        🌿 தமிழ்: "இன்று தக்காளி விலை என்ன?"
+      </button>
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('ಇಂದು ಟೊಮೆಟೊ ಬೆಲೆ ಎಷ್ಟು?', 'kn')">
+        🍃 ಕನ್ನಡ: "ಇಂದು ಟೊಮೆಟೊ ಬೆಲೆ ಎಷ್ಟು?"
+      </button>
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('ਮੈਨੂੰ ਬੀਜ ਅਤੇ ਖਾਦ ਲਈ ਲੋਨ ਚਾਹੀਦਾ ਹੈ', 'pa')">
+        🌾 ਪੰਜਾਬੀ: "ਮੈਨੂੰ ਬੀਜ ਅਤੇ ਖਾਦ ਲਈ ਲੋਨ ਚਾਹੀਦਾ ਹੈ"
+      </button>
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('મારી પાસે 150 કિલો ટામેટાં તૈયાર છે', 'gu')">
+        🥜 ગુજરાતી: "મારી પાસે 150 કિલો ટામેટાં તૈયાર છે"
+      </button>
+      <button class="btn btn-outline" style="font-size:0.72rem; padding:0.35rem 0.5rem; justify-content:flex-start;" onclick="sendVoicePrompt('What is the guaranteed MSP price floor for tomatoes?', 'en')">
+        🌐 English: "What is guaranteed MSP for tomato?"
       </button>
     </div>
 
-    <button id="drawer-record-btn" class="btn btn-agri-dark" style="width:100%; justify-content:center; padding:0.6rem; margin-bottom:0.75rem;" onclick="toggleBrowserSpeech()">
+    <!-- Custom Speech or Text Prompt -->
+    <div style="display:flex; gap:0.4rem; margin-bottom:0.75rem;">
+      <input type="text" id="voice-custom-input" placeholder="Type prompt in any language..." class="form-control" style="font-size:0.75rem; padding:0.4rem 0.6rem; flex:1;" onkeydown="if(event.key==='Enter') sendCustomVoicePrompt()">
+      <button class="btn btn-agri-dark" style="font-size:0.75rem; padding:0.4rem 0.8rem;" onclick="sendCustomVoicePrompt()">
+        Send
+      </button>
+    </div>
+
+    <!-- Speech-to-Text Microphone Button -->
+    <button id="drawer-record-btn" class="btn btn-agri-dark" style="width:100%; justify-content:center; padding:0.55rem; margin-bottom:0.75rem; font-size:0.8rem;" onclick="toggleBrowserSpeech()">
       🎤 Tap to Speak Now
     </button>
 
-    <div id="voice-reply-box" style="background:#f4f8f2; border:1px solid var(--border-subtle); border-radius:8px; padding:0.6rem; font-size:0.78rem; color:var(--text-dark);">
-      <p style="color:#64748b;">Waiting for voice input...</p>
+    <!-- Dynamic Response Card -->
+    <div id="voice-reply-box" style="background:#f4f8f2; border:1px solid var(--border-subtle); border-radius:8px; padding:0.65rem; font-size:0.78rem; color:var(--text-dark);">
+      <p style="color:#64748b;">Waiting for voice command...</p>
     </div>
   </div>
 
@@ -1513,20 +1558,35 @@
 
       document.getElementById('live-batch-label').innerText = batchId;
 
-      const payload = {
-        batch_id: batchId,
-        simulation_size_uniformity: sizeVal,
-        simulation_color_uniformity: colorVal,
-        simulation_surface_defect_pct: defectVal,
-        simulation_confidence_score: confVal
-      };
+      const fileInput = document.getElementById('image-upload-input');
+      const hasUploadedFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
-      try {
-        const res = await fetch('/api/v1/grading/scan/', {
+      let reqOptions;
+      if (hasUploadedFile) {
+        const formData = new FormData();
+        formData.append('batch_id', batchId);
+        formData.append('image', fileInput.files[0]);
+        reqOptions = {
+          method: 'POST',
+          body: formData
+        };
+      } else {
+        const payload = {
+          batch_id: batchId,
+          simulation_size_uniformity: sizeVal,
+          simulation_color_uniformity: colorVal,
+          simulation_surface_defect_pct: defectVal,
+          simulation_confidence_score: confVal
+        };
+        reqOptions = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-        });
+        };
+      }
+
+      try {
+        const res = await fetch('/api/v1/grading/scan/', reqOptions);
         const data = await res.json();
         const badge = document.getElementById('vision-grade-badge');
         const manualBox = document.getElementById('manual-review-box');
@@ -1692,34 +1752,80 @@
       }
     }
 
-    // 6. Voice Assistant Drawer
+    // 6. Multilingual Regional Voice Assistant Drawer
+    const VOICE_LOCALE_MAP = {
+      'hi': 'hi-IN',
+      'mr': 'mr-IN',
+      'te': 'te-IN',
+      'ta': 'ta-IN',
+      'kn': 'kn-IN',
+      'pa': 'pa-IN',
+      'gu': 'gu-IN',
+      'en': 'en-IN',
+      'auto': 'hi-IN'
+    };
+
     function toggleVoiceDrawer() {
       const drawer = document.getElementById('voice-drawer-panel');
       drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
     }
 
+    function getSelectedVoiceLang() {
+      const select = document.getElementById('voice-lang-select');
+      return select ? select.value : 'auto';
+    }
+
+    function onVoiceLanguageChange() {
+      const lang = getSelectedVoiceLang();
+      const replyBox = document.getElementById('voice-reply-box');
+      if (replyBox) {
+        replyBox.innerHTML = `<p style="color:#64748b;">Active language set to <b>${lang.toUpperCase()}</b>. Tap mic to speak or click any quick prompt.</p>`;
+      }
+    }
+
+    function sendCustomVoicePrompt() {
+      const input = document.getElementById('voice-custom-input');
+      if (!input || !input.value.trim()) return;
+      const text = input.value.trim();
+      input.value = '';
+      sendVoicePrompt(text, getSelectedVoiceLang());
+    }
+
     async function sendVoicePrompt(promptText, lang) {
-      document.getElementById('voice-reply-box').innerHTML = `<p style="color:#64748b;">Processing: "${promptText}"...</p>`;
+      const targetLang = lang || getSelectedVoiceLang();
+      document.getElementById('voice-reply-box').innerHTML = `
+        <p style="color:#64748b;">Processing (${targetLang.toUpperCase()}): "${promptText}"...</p>
+      `;
       try {
         const res = await fetch('/api/v1/voice-assistant/process-command/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             voice_transcript: promptText,
-            language: lang,
+            language: targetLang,
             farmer_phone: "+919876543210"
           })
         });
         const data = await res.json();
+        const langDisplay = data.language_name || (data.language ? data.language.toUpperCase() : targetLang.toUpperCase());
+
         document.getElementById('voice-reply-box').innerHTML = `
-          <p style="font-weight:700; color:var(--agri-green);">Intent: ${data.intent}</p>
-          <p style="margin-top:0.4rem; color:var(--text-dark);">"${data.voice_reply_text}"</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+            <span class="status-badge badge-at-hub" style="font-size:0.7rem; font-weight:700;">Intent: ${data.intent}</span>
+            <span class="status-badge badge-growing" style="font-size:0.7rem; font-weight:700;">🗣️ ${langDisplay}</span>
+          </div>
+          <p style="color:var(--text-dark); line-height:1.45; font-size:0.8rem; font-weight:500;">
+            "${data.voice_reply_text}"
+          </p>
         `;
 
-        // Browser speech synthesis
-        if ('speechSynthesis' in window) {
+        // Browser speech synthesis in authentic regional locale
+        if ('speechSynthesis' in window && data.voice_reply_text) {
+          window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(data.voice_reply_text);
-          utterance.lang = lang === 'hi' ? 'hi-IN' : (lang === 'mr' ? 'mr-IN' : 'en-IN');
+          const activeLocale = data.locale || VOICE_LOCALE_MAP[data.language] || VOICE_LOCALE_MAP[targetLang] || 'hi-IN';
+          utterance.lang = activeLocale;
+          utterance.rate = 0.95;
           window.speechSynthesis.speak(utterance);
         }
       } catch (err) {
@@ -1734,19 +1840,21 @@
       }
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
-      recognition.lang = 'hi-IN';
+      const selectedLang = getSelectedVoiceLang();
+      recognition.lang = VOICE_LOCALE_MAP[selectedLang] || 'hi-IN';
+
       const btn = document.getElementById('drawer-record-btn');
       const micBtn = document.getElementById('floating-mic-btn');
 
       recognition.onstart = function() {
-        btn.innerText = '🔴 Listening... Speak now';
+        btn.innerText = `🔴 Listening (${selectedLang.toUpperCase()})... Speak now`;
         micBtn.classList.add('listening');
       };
       recognition.onresult = function(event) {
         const text = event.results[0][0].transcript;
         btn.innerText = '🎤 Tap to Speak Now';
         micBtn.classList.remove('listening');
-        sendVoicePrompt(text, 'hi');
+        sendVoicePrompt(text, selectedLang);
       };
       recognition.onerror = function() {
         btn.innerText = '🎤 Tap to Speak Now';

@@ -4,7 +4,9 @@ Configured for production deployment on Render with MySQL database support.
 """
 import os
 from pathlib import Path
+# pyrefly: ignore [missing-import]
 import dj_database_url
+# pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -173,3 +175,9 @@ CORS_ALLOW_CREDENTIALS = True
 # K2K Platform Parameters
 K2K_AI_GRADING_CONFIDENCE_THRESHOLD = 0.82
 K2K_MAX_LOAN_DEDUCTION_RATIO = 0.50  # Cap automatic loan deductions to at most 50% of gross revenue per harvest
+
+# Google Gemini Generative AI Configuration
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+GEMINI_MODEL_NAME = os.getenv('GEMINI_MODEL_NAME', 'gemini-3.5-flash-lite')
+
+

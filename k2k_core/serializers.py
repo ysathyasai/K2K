@@ -195,4 +195,4 @@ class AgriFintechPayoutSerializer(serializers.Serializer):
 class VoiceAssistantCommandSerializer(serializers.Serializer):
     farmer_phone = serializers.CharField(required=False, default="+919876543210")
     voice_transcript = serializers.CharField(required=True, help_text="Speech-to-text string in regional language or English")
-    language = serializers.CharField(default='hi', help_text="Language code: hi, mr, te, ta, kn, en")
+    language = serializers.CharField(default='auto', required=False, help_text="Regional language code: hi, mr, te, ta, kn, pa, gu, en, or auto")

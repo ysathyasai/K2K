@@ -1,0 +1,25 @@
+# Environments & Secrets
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+# Python bytecode
+*.pyc
+__pycache__/
+
+# SQLite database
+*.sqlite3
+db.sqlite3
+
+# Uploaded Media & Static collection
+media/
+staticfiles/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
