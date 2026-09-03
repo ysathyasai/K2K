@@ -1,0 +1,31 @@
+services:
+  # K2K Django REST Intelligence Engine API
+  - type: web
+    name: k2k-api
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn k2k_project.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 120"
+    plan: starter
+    region: singapore
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: k2k_project.settings
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: k2k-mysql
+          property: connectionString
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "True"
+
+databases:
+  - name: k2k-mysql
+    databaseName: k2k_db
+    user: k2k_user
+    plan: starter
+    region: singapore

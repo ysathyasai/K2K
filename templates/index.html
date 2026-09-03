@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Khet2Kitchen (K2K) | Farmer Portal & Lifecycle Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Clean Agricultural Green & Sage Light Palette */
+      --bg-canvas: #f4f6f1;
+      --bg-canvas-subtle: #ebf0e6;
+      --bg-white: #ffffff;
+      --bg-sidebar: #233d32;
+      --bg-sidebar-hover: #2b493c;
+      --bg-sidebar-active: #315344;
+      --bg-sage-card: #f9faf7;
+      --bg-sage-pill: #e5ece0;
+      
+      --text-dark: #192a20;
+      --text-sidebar: #e2ede5;
+      --text-sidebar-muted: #95b3a1;
+      --text-muted: #5e7064;
+      --text-light-muted: #7c8e82;
+
+      --agri-green: #2b4c3f;
+      --agri-green-dark: #1b3329;
+      --agri-green-hover: #376150;
+      --agri-emerald: #10b981;
+      --agri-sage: #8da391;
+      --agri-olive: #6b8068;
+      --agri-gold: #eab308;
+      --agri-amber: #f59e0b;
+      --agri-rose: #e11d48;
+
+      --border-subtle: #e1e7dc;
+      --border-light: #d4ded0;
+      --border-sidebar: rgba(255, 255, 255, 0.08);
+
+      --shadow-sm: 0 1px 3px rgba(25, 42, 32, 0.05);
+      --shadow-md: 0 4px 14px rgba(25, 42, 32, 0.06);
+      --shadow-lg: 0 10px 28px rgba(25, 42, 32, 0.09);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* 1. TOP OPERATIONAL STATUS BARS (From Reference) */
+    .top-ticker-bar {
+      background: #0f1c16;
+      color: #9fe2bf;
+      font-size: 0.75rem;
+      padding: 0.4rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 60;
+    }
+    .ticker-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .ticker-pill {
+      background: #1e3b2e;
+      color: #86efac;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .ticker-right {
+      display: flex;
+      gap: 1.2rem;
+    }
+    .ticker-highlight {
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    .top-subnav-bar {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+    .subnav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .subnav-brand-badge {
+      background: #fef08a;
+      color: #713f12;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid #fde047;
+    }
+    .subnav-brand-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--agri-green-dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .subnav-brand-title span {
+      font-size: 0.8rem;
+      color: var(--text-light-muted);
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .role-pills-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .role-pill-btn {
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-sage-card);
+      color: var(--text-dark);
+      transition: all 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .role-pill-btn:hover {
+      background: #e2ebd9;
+    }
+    .role-pill-btn.active {
+      background: #facc15;
+      color: #422006;
+      border-color: #eab308;
+      box-shadow: 0 2px 6px rgba(234, 179, 8, 0.25);
+    }
+
+    .subnav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .live-batches-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #166534;
+    }
+    .pulse-dot-green {
+      width: 7px;
+      height: 7px;
+      background: #16a34a;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.3); }
+    }
+
+    /* 2. APP SHELL LAYOUT (Sidebar + Main Content) */
+    .app-shell {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 82px);
+    }
+
+    /* Sidebar Navigation */
+    .app-sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: var(--text-sidebar);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-sidebar);
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 1.4rem 1.25rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border-sidebar);
+    }
+    .sidebar-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .sidebar-brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+    .sidebar-brand-subtitle {
+      font-size: 0.7rem;
+      color: var(--text-sidebar-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav-menu {
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .menu-category-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-sidebar-muted);
+      padding: 0.75rem 0.75rem 0.35rem;
+      font-weight: 700;
+    }
+
+    .nav-item-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-sidebar);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item-btn:hover {
+      background: var(--bg-sidebar-hover);
+      color: #ffffff;
+    }
+    .nav-item-btn.active {
+      background: #e2ecd9;
+      color: var(--agri-green-dark);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .nav-item-icon {
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+    }
+
+    .sidebar-footer-profile {
+      padding: 1rem 1.25rem;
+      background: rgba(0, 0, 0, 0.15);
+      border-top: 1px solid var(--border-sidebar);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .profile-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #10b981;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+    .profile-details {
+      line-height: 1.3;
+    }
+    .profile-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .profile-role {
+      font-size: 0.72rem;
+      color: var(--text-sidebar-muted);
+    }
+
+    /* Main Content */
+    .app-main {
+      flex: 1;
+      padding: 1.75rem 2rem 5rem;
+      overflow-y: auto;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Header in Main */
+    .page-main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .page-eyebrow {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--agri-olive);
+      margin-bottom: 0.2rem;
+    }
+    .page-main-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.5px;
+    }
+    .page-actions-group {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.55rem 1.15rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+    .btn-agri-dark {
+      background: var(--agri-green);
+      color: #ffffff;
+      border-color: var(--agri-green);
+      box-shadow: 0 2px 6px rgba(43, 76, 63, 0.2);
+    }
+    .btn-agri-dark:hover {
+      background: var(--agri-green-hover);
+      transform: translateY(-1px);
+    }
+    .btn-outline {
+      background: var(--bg-white);
+      color: var(--text-dark);
+      border-color: var(--border-light);
+    }
+    .btn-outline:hover {
+      background: var(--bg-sage-card);
+      border-color: var(--agri-sage);
+    }
+    .btn-emerald {
+      background: var(--agri-emerald);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    }
+    .btn-emerald:hover {
+      background: #059669;
+    }
+
+    /* Cards */
+    .card-container {
+      background: var(--bg-white);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .card-container:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-light);
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .card-header-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .card-header-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* Status Pills */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .badge-growing {
+      background: var(--agri-green);
+      color: #ffffff;
+    }
+    .badge-planting {
+      background: var(--bg-sage-pill);
+      color: var(--agri-olive);
+      border: 1px solid #d0dcd0;
+    }
+    .badge-harvested {
+      background: #d8e5d3;
+      color: #1b3d2b;
+    }
+    .badge-at-hub {
+      background: #10b981;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    }
+    .badge-grade-a {
+      background: #facc15;
+      color: #422006;
+      font-weight: 800;
+      border: 1px solid #eab308;
+    }
+    .badge-grade-b {
+      background: #fed7aa;
+      color: #7c2d12;
+      font-weight: 800;
+    }
+    .badge-grade-c {
+      background: #fecdd3;
+      color: #881337;
+      font-weight: 800;
+    }
+
+    /* Tables */
+    .agri-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .agri-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .agri-table td {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid #f1f5ee;
+      vertical-align: middle;
+    }
+    .agri-table tr:last-child td {
+      border-bottom: none;
+    }
+    .agri-table tr:hover td {
+      background: #fbfdf9;
+    }
+    .crop-title-cell {
+      font-weight: 700;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .crop-demo-pill {
+      font-size: 0.68rem;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    /* Grid Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .grid-4col {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    /* Metric Stat Card */
+    .metric-stat-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .metric-stat-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+    .metric-stat-val {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--agri-green-dark);
+      margin: 0.35rem 0 0.2rem;
+    }
+    .metric-stat-footer {
+      font-size: 0.75rem;
+      color: var(--agri-olive);
+      font-weight: 500;
+    }
+
+    /* Sliders & Forms */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--text-dark);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .slider-range {
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: #e2e8df;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .slider-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--agri-green);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(43, 76, 63, 0.3);
+    }
+
+    /* JSON Output Log Box */
+    .audit-log-box {
+      background: #f8faf6;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: #334155;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .audit-log-box pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Upload Box */
+    .photo-upload-container {
+      border: 2px dashed #cbd8c8;
+      background: #fafcf9;
+      border-radius: var(--radius-md);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .photo-upload-container:hover {
+      border-color: var(--agri-green);
+      background: #f4f8f2;
+    }
+    .upload-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: #e5ece0;
+      color: var(--agri-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 0.75rem;
+    }
+
+    /* Vision Screen Panel */
+    .vision-screen-panel {
+      position: relative;
+      background: #0f1c16;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid #1e3b2e;
+    }
+    .vision-screen-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      opacity: 0.85;
+      display: block;
+    }
+    .vision-overlay-header {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.65);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+    }
+    .vision-overlay-footer {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      text-align: center;
+    }
+    .vision-big-badge {
+      display: inline-block;
+      background: #facc15;
+      color: #422006;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 0.45rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      letter-spacing: 0.5px;
+    }
+
+    /* Floating Voice Assistant Widget */
+    .floating-voice-widget {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      z-index: 100;
+    }
+    .floating-mic-button {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--agri-green);
+      color: #ffffff;
+      border: 3px solid #ffffff;
+      box-shadow: 0 8px 24px rgba(43, 76, 63, 0.35);
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .floating-mic-button:hover {
+      transform: scale(1.08);
+      background: var(--agri-green-dark);
+      box-shadow: 0 10px 28px rgba(43, 76, 63, 0.5);
+    }
+    .floating-mic-button.listening {
+      background: #e11d48;
+      animation: pulse-recording 1.2s infinite;
+    }
+    @keyframes pulse-recording {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4); }
+      70% { box-shadow: 0 0 0 16px rgba(225, 29, 72, 0); }
+    }
+
+    /* Voice Drawer Modal */
+    .voice-drawer {
+      position: fixed;
+      bottom: 95px;
+      right: 28px;
+      width: 360px;
+      background: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 1.25rem;
+      z-index: 99;
+      display: none;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Content Views */
+    .view-tab-pane {
+      display: none;
+    }
+    .view-tab-pane.active {
+      display: block;
+    }
+
+    @media (max-width: 1024px) {
+      .app-sidebar { width: 220px; }
+      .grid-2col, .grid-3col, .grid-4col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .app-shell { flex-direction: column; }
+      .app-sidebar { width: 100%; }
+      .top-ticker-bar { display: none; }
+      .app-main { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. TOP OPERATIONAL STATUS TICKER -->
+  <div class="top-ticker-bar">
+    <div class="ticker-left">
+      <span class="ticker-pill">NASHIK-PUNE RURAL PILOT</span>
+      <span>● DIGITAL AGRI SUPPLY CHAIN & MIDDLEMAN ELIMINATION PLATFORM</span>
+    </div>
+    <div class="ticker-right">
+      <span>Cluster: <strong>Maharashtra West Zone</strong></span>
+      <span>AI Intelligence Swarm: <span class="ticker-highlight">ACTIVE</span></span>
+      <span>MSP Floor Protection: <span class="ticker-highlight">ENFORCED</span></span>
+    </div>
+  </div>
+
+  <!-- 2. SUBNAV BAR -->
+  <div class="top-subnav-bar">
+    <div class="subnav-brand">
+      <div class="subnav-brand-badge">K2K</div>
+      <div class="subnav-brand-title">
+        Khet2Kitchen <span>Lifecycle Engine v1.0</span>
+      </div>
+    </div>
+
+    <div class="role-pills-group">
+      <button class="role-pill-btn active" onclick="switchSection('view-farmer-dashboard')">1. Farmer Portal</button>
+      <button class="role-pill-btn" onclick="switchSection('view-grading-studio')">2. Micro-Hub Hub 🔒</button>
+      <button class="role-pill-btn" onclick="switchSection('view-pricing-fintech')">3. Retailer Hub 🔒</button>
+      <button class="role-pill-btn" onclick="switchSection('view-command-center')">4. Command Center</button>
+    </div>
+
+    <div class="subnav-actions">
+      <div class="live-batches-pill">
+        <span class="pulse-dot-green"></span>
+        Live Batches: <strong id="top-live-batch-count">4</strong>
+      </div>
+      <button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="loadCommandCenterData()">🔄 Refresh</button>
+      <a href="/admin/" target="_blank" class="btn btn-agri-dark" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">Admin</a>
+    </div>
+  </div>
+
+  <!-- 3. APP SHELL -->
+  <div class="app-shell">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">🌱</div>
+        <div>
+          <div class="sidebar-brand-title">Khet2Kitchen</div>
+          <div class="sidebar-brand-subtitle">Smart Agri-Supply</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav-menu">
+        <div class="menu-category-title">Core Operations</div>
+        <button class="nav-item-btn active" onclick="switchSection('view-farmer-dashboard')">
+          <span class="nav-item-icon">📊</span> Farmer's Dashboard
+        </button>
+        <button class="nav-item-btn" onclick="switchSection('view-grading-studio')">
+          <span class="nav-item-icon">📸</span> My Graded Produce
+        </button>
+        <button class="nav-item-btn" onclick="switchSection('view-pricing-fintech')">
+          <span class="nav-item-icon">💵</span> AI Pricing & MSP
+        </button>
+        <button class="nav-item-btn" onclick="switchSection('view-command-center')">
+          <span class="nav-item-icon">🛒</span> Incoming Orders
+        </button>
+
+        <div class="menu-category-title">Settlement & Fleet</div>
+        <button class="nav-item-btn" onclick="switchSection('view-pricing-fintech')">
+          <span class="nav-item-icon">💳</span> Agri-Fintech Payouts
+        </button>
+        <button class="nav-item-btn" onclick="switchSection('view-routes-logistics')">
+          <span class="nav-item-icon">🚚</span> Dynamic Sweeps
+        </button>
+        <button class="nav-item-btn" onclick="switchSection('view-command-center')">
+          <span class="nav-item-icon">🏢</span> Command Center
+        </button>
+
+        <div class="menu-category-title">Farmer Advisory</div>
+        <button class="nav-item-btn" onclick="switchSection('view-advisory')">
+          <span class="nav-item-icon">⛅</span> Weather & Risk
+        </button>
+        <button class="nav-item-btn" onclick="toggleVoiceDrawer()">
+          <span class="nav-item-icon">🎙️</span> Voice Assistant
+        </button>
+      </nav>
+
+      <div class="sidebar-footer-profile">
+        <div class="profile-avatar">SP</div>
+        <div class="profile-details">
+          <div class="profile-name">Santosh Patil</div>
+          <div class="profile-role">Nashik Rural • 88.5% Reliability</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="app-main">
+      
+      <!-- VIEW 1: FARMER'S DASHBOARD (Matching Reference) -->
+      <section id="view-farmer-dashboard" class="view-tab-pane active">
+        <div class="page-main-header">
+          <div>
+            <div class="page-eyebrow">PUBLIC FARMER PORTAL</div>
+            <h1 class="page-main-title">Farmer's Dashboard</h1>
+          </div>
+          <div class="page-actions-group">
+            <button class="btn btn-outline" onclick="switchSection('view-grading-studio')">+ Add Crop / Harvest</button>
+            <button class="btn btn-agri-dark" onclick="switchSection('view-command-center')">🔍 Batch Traceability Tracker</button>
+          </div>
+        </div>
+
+        <!-- My Crops Table Card (Directly inspired by K2K Screenshot) -->
+        <div class="card-container">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-header-title">My Crops</h2>
+              <p class="card-header-subtitle">An overview of your current and past crops.</p>
+            </div>
+            <button class="btn btn-agri-dark" style="font-size: 0.8rem; padding: 0.4rem 0.9rem;" onclick="switchSection('view-grading-studio')">⊕ Add Crop</button>
+          </div>
+
+          <table class="agri-table">
+            <thead>
+              <tr>
+                <th>Crop Name</th>
+                <th>Planted / Harvest Date</th>
+                <th>Expected Yield</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="crop-title-cell">Winter Wheat</td>
+                <td>2023-10-15</td>
+                <td>8,000 kg</td>
+                <td><span class="status-badge badge-growing">Growing</span></td>
+                <td><a href="javascript:void(0)" style="color:var(--agri-green); font-weight:600; text-decoration:none;">Edit</a></td>
+              </tr>
+              <tr>
+                <td class="crop-title-cell">Corn</td>
+                <td>2024-04-20</td>
+                <td>12,000 kg</td>
+                <td><span class="status-badge badge-growing">Growing</span></td>
+                <td><a href="javascript:void(0)" style="color:var(--agri-green); font-weight:600; text-decoration:none;">Edit</a></td>
+              </tr>
+              <tr>
+                <td class="crop-title-cell">Soybeans</td>
+                <td>2024-05-01</td>
+                <td>10,000 kg</td>
+                <td><span class="status-badge badge-planting">Planting</span></td>
+                <td><a href="javascript:void(0)" style="color:var(--agri-green); font-weight:600; text-decoration:none;">Edit</a></td>
+              </tr>
+              <tr>
+                <td class="crop-title-cell">Barley</td>
+                <td>2023-09-30</td>
+                <td>6,500 kg</td>
+                <td><span class="status-badge badge-harvested">Harvested</span></td>
+                <td><a href="javascript:void(0)" style="color:var(--agri-green); font-weight:600; text-decoration:none;">Edit</a></td>
+              </tr>
+              <tr style="background:#f4f8f2;">
+                <td class="crop-title-cell">
+                  Hybrid Tomato (Tamatar)
+                  <span class="crop-demo-pill">Active Demo</span>
+                </td>
+                <td>2026-04-10</td>
+                <td>400 kg</td>
+                <td><span class="status-badge badge-at-hub">At Hub (Graded)</span></td>
+                <td><button class="btn btn-agri-dark" style="padding:0.25rem 0.65rem; font-size:0.75rem;" onclick="switchSection('view-grading-studio')">Inspect</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Quick Telemetry Cards -->
+        <div class="grid-4col">
+          <div class="metric-stat-card">
+            <div class="metric-stat-title">Farm Reliability Score</div>
+            <div class="metric-stat-val">88.5%</div>
+            <div class="metric-stat-footer">↑ +1.5 pts after loan payback</div>
+          </div>
+          <div class="metric-stat-card">
+            <div class="metric-stat-title">Digital Wallet Balance</div>
+            <div class="metric-stat-val" id="card-wallet-bal">₹14,500</div>
+            <div class="metric-stat-footer">Instant UPI Transfer Ready</div>
+          </div>
+          <div class="metric-stat-card">
+            <div class="metric-stat-title">Active Input Loans</div>
+            <div class="metric-stat-val">₹4,500</div>
+            <div class="metric-stat-footer">Certified Seeds & Bio-NPK</div>
+          </div>
+          <div class="metric-stat-card">
+            <div class="metric-stat-title">Guaranteed MSP Floor</div>
+            <div class="metric-stat-val">₹14.00/kg</div>
+            <div class="metric-stat-footer">Protected against market gluts</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: AI QUALITY GRADING STUDIO (Matching Reference Photo & Live Scan) -->
+      <section id="view-grading-studio" class="view-tab-pane">
+        <div class="page-main-header">
+          <div>
+            <div class="page-eyebrow">COMPUTER VISION AI INSPECTION</div>
+            <h1 class="page-main-title">Produce Quality Grading Studio</h1>
+          </div>
+          <div class="page-actions-group">
+            <span class="status-badge badge-planting" style="padding:0.4rem 0.85rem;">Confidence Gate: 0.820</span>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <!-- 1. Produce Quality Photograph Card -->
+          <div class="card-container">
+            <div class="card-header-row">
+              <h2 class="card-header-title">1. Produce Quality Photograph *</h2>
+              <span style="font-family:'JetBrains Mono', monospace; font-size:0.75rem; color:var(--text-muted);">CV Multi-Metric Scan</span>
+            </div>
+
+            <div class="photo-upload-container" onclick="document.getElementById('file-upload-input').click()">
+              <input type="file" id="file-upload-input" style="display:none" accept="image/*" onchange="previewUploadedImage(event)">
+              <div class="upload-icon-box">📷</div>
+              <p style="font-weight:700; color:var(--text-dark); margin-bottom:0.2rem;">Upload produce photograph or smartphone scan</p>
+              <p style="font-size:0.75rem; color:var(--text-muted); font-family:'JetBrains Mono', monospace;">PNG, JPG up to 15MB • Autonomous Multi-Metric AI Validation</p>
+            </div>
+
+            <div style="margin-top: 1.25rem;">
+              <div class="form-group">
+                <label>Target Produce Batch:
+                  <select id="grade-batch-select" style="background:#fff; color:var(--text-dark); border:1px solid var(--border-light); padding:0.35rem; border-radius:6px;">
+                    <option value="K2K-2026-TOM-DEMO01">K2K-2026-TOM-DEMO01 (Hybrid Tomato - 400 kg)</option>
+                    <option value="K2K-2026-SPN-DEMO02">K2K-2026-SPN-DEMO02 (Organic Spinach - 250 kg)</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Size Uniformity (Diameter Variance): <span id="val-size" style="color:var(--agri-green); font-weight:700;">92%</span></label>
+                <input type="range" class="slider-range" min="50" max="100" value="92" oninput="document.getElementById('val-size').innerText = this.value + '%'">
+              </div>
+              <div class="form-group">
+                <label>Color Uniformity (HSV Distribution): <span id="val-color" style="color:var(--agri-green); font-weight:700;">90%</span></label>
+                <input type="range" class="slider-range" min="50" max="100" value="90" oninput="document.getElementById('val-color').innerText = this.value + '%'">
+              </div>
+              <div class="form-group">
+                <label>Surface Defect Percentage (Skin Bruising/Rot): <span id="val-defect" style="color:var(--agri-green); font-weight:700;">3.5%</span></label>
+                <input type="range" class="slider-range" min="0" max="40" step="0.5" value="3.5" oninput="document.getElementById('val-defect').innerText = this.value + '%'">
+              </div>
+              <div class="form-group">
+                <label>Model Confidence Score: <span id="val-conf" style="color:var(--agri-green); font-weight:700;">0.920</span></label>
+                <input type="range" class="slider-range" min="0.5" max="1.0" step="0.01" value="0.92" oninput="document.getElementById('val-conf').innerText = this.value">
+                <small style="color:#6b7280; font-size:0.75rem;">Tip: Slide below 0.82 to trigger Human-in-the-Loop Hub Manager Audit!</small>
+              </div>
+
+              <button class="btn btn-agri-dark" style="width:100%; justify-content:center; padding:0.75rem;" onclick="runAIGradingScan()">
+                🔍 Execute Computer Vision AI Grading
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Live AI Vision Pre-Screen Card (Direct from Screenshot) -->
+          <div class="card-container">
+            <div class="card-header-row">
+              <h2 class="card-header-title">🤖 Live AI Vision Pre-Screen</h2>
+              <span style="font-family:'JetBrains Mono', monospace; font-size:0.75rem; color:#10b981; font-weight:600;">Analysis Ready</span>
+            </div>
+
+            <div class="vision-screen-panel">
+              <div class="vision-overlay-header">
+                <span>BATCH ID: <strong id="live-batch-label">K2K-2026-TOM-DEMO01</strong></span>
+                <span>AUTONOMOUS CV: ACTIVE</span>
+              </div>
+              <img id="live-vision-preview" class="vision-screen-img" src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&auto=format&fit=crop&q=80" alt="Produce Pre-Screen">
+              <div class="vision-overlay-footer">
+                <div id="vision-grade-badge" class="vision-big-badge">GRADE A (PREMIUM)</div>
+              </div>
+            </div>
+
+            <div style="margin-top:1.25rem;">
+              <h3 style="font-size:0.9rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-dark);">Inspection Audit Ledger</h3>
+              <div id="grading-audit-log" class="audit-log-box">
+                <p style="color:#64748b;">Ready. Click "Execute Computer Vision AI Grading" to evaluate produce quality parameters.</p>
+              </div>
+
+              <!-- Human-in-the-loop Override Box -->
+              <div id="manual-review-box" style="display:none; margin-top:1rem; padding:1rem; background:#fefce8; border:1px solid #fef08a; border-radius:10px;">
+                <p style="color:#854d0e; font-weight:700; font-size:0.85rem; margin-bottom:0.4rem;">⚠️ Low Confidence Fallback Triggered (&lt; 0.820)</p>
+                <p style="font-size:0.78rem; color:#713f12; margin-bottom:0.75rem;">Lighting or skin blemish ambiguity requires physical inspection by Niphad Micro-Hub Manager:</p>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                  <button class="btn btn-agri-dark" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="submitManualReview('GRADE_A')">Confirm Grade A</button>
+                  <button class="btn btn-outline" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="submitManualReview('GRADE_B')">Assign Grade B</button>
+                  <button class="btn btn-outline" style="font-size:0.78rem; padding:0.35rem 0.75rem; color:#e11d48;" onclick="submitManualReview('GRADE_C')">Route Grade C (Puree)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: TRANSPARENT DYNAMIC PRICING & AGRI-FINTECH PAYOUT -->
+      <section id="view-pricing-fintech" class="view-tab-pane">
+        <div class="page-main-header">
+          <div>
+            <div class="page-eyebrow">TRANSPARENT PRICING & FINTECH</div>
+            <h1 class="page-main-title">Dynamic Pricing & Automated Payback</h1>
+          </div>
+          <div class="page-actions-group">
+            <span class="status-badge badge-growing">MSP Floor Protected</span>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <!-- Pricing Card -->
+          <div class="card-container">
+            <div class="card-header-row">
+              <h2 class="card-header-title">⚖️ Dynamic Pricing Calculator</h2>
+              <span id="price-floor-badge" class="status-badge badge-harvested">Floor Verified</span>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+              K2K calculates price-floor protected offers exposing every mathematical parameter directly to the farmer:
+            </p>
+            <div style="background:#f4f8f2; border:1px solid #d4ded0; border-radius:8px; padding:0.75rem 1rem; margin-bottom:1rem; font-family:'JetBrains Mono', monospace; font-size:0.75rem;">
+              <strong>Formula:</strong> Final Price = MAX(MSP Floor, Base Value + Grade Premium + Demand Surge - Logistics)
+            </div>
+
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+              <button class="btn btn-agri-dark" style="flex:1; justify-content:center;" onclick="calculateDynamicPricing()">Calculate Offer</button>
+              <button class="btn btn-outline" style="flex:1; justify-content:center;" onclick="acceptDynamicPricingOffer()">Accept & Lock Sale</button>
+            </div>
+
+            <div id="pricing-breakdown-log" class="audit-log-box">
+              <p style="color:#64748b;">Click "Calculate Offer" to compute transparent dynamic pricing breakdown.</p>
+            </div>
+          </div>
+
+          <!-- Agri-Fintech Payout Card -->
+          <div class="card-container">
+            <div class="card-header-row">
+              <h2 class="card-header-title">💳 Integrated Agri-Fintech Payout</h2>
+              <span class="status-badge badge-at-hub">Instant UPI</span>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+              Replaces the predatory village moneylender. Seamlessly recovers pre-season in-kind seed/fertilizer financing from harvest check and deposits net profits to farmer's wallet:
+            </p>
+
+            <button class="btn btn-emerald" style="width:100%; justify-content:center; padding:0.75rem; margin-bottom:1rem;" onclick="settleHarvestPayout()">
+              Disburse Instant Harvest Settlement (UPI)
+            </button>
+
+            <div id="fintech-receipt-log" class="audit-log-box">
+              <p style="color:#64748b;">Click "Disburse Instant Harvest Settlement" to execute automated loan recovery and instant wallet transfer.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: COMMAND CENTER (B2B Admin Dashboard) -->
+      <section id="view-command-center" class="view-tab-pane">
+        <div class="page-main-header">
+          <div>
+            <div class="page-eyebrow">CENTRAL DECISION ENGINE</div>
+            <h1 class="page-main-title">K2K Command Center</h1>
+          </div>
+          <div class="page-actions-group">
+            <button class="btn btn-agri-dark" onclick="triggerRouteOptimization()">Sweep Hubs Now</button>
+          </div>
+        </div>
+
+        <div class="grid-2col">
+          <!-- Active Crops Stock -->
+          <div class="card-container">
+            <div class="card-header-row">
+              <h2 class="card-header-title">🌾 Active Crops & Micro-Hub Stock</h2>
+            </div>
+            <div id="cmd-crops-container">Loading crops telemetry...</div>
+          </div>
+
+          <!-- Retailer Demand-Lock Matrix -->
+          <div class="card-container">
+            <div class="card-header-row">
+              <h2 class="card-header-title">🔒 Retailer Demand-Lock Matrix</h2>
+              <span class="status-badge badge-growing">Pre-Orders</span>
+            </div>
+            <div id="cmd-demand-container">Loading locked demand matrix...</div>
+          </div>
+        </div>
+
+        <!-- Fleet Sweeping Telemetry -->
+        <div class="card-container">
+          <div class="card-header-row">
+            <h2 class="card-header-title">🚚 Transit Fleet Telemetry</h2>
+            <span class="status-badge badge-at-hub">Reefer Active</span>
+          </div>
+          <div id="cmd-fleet-container">Loading fleet status...</div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: DYNAMIC ROUTE LOGISTICS -->
+      <section id="view-routes-logistics" class="view-tab-pane">
+        <div class="page-main-header">
+          <div>
+            <div class="page-eyebrow">DYNAMIC PERISHABILITY SWEEP</div>
+            <h1 class="page-main-title">Logistics & Route Optimization</h1>
+          </div>
+          <div class="page-actions-group">
+            <button class="btn btn-agri-dark" onclick="triggerRouteOptimization()">Generate Optimized Routes</button>
+          </div>
+        </div>
+
+        <div class="card-container">
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.25rem;">
+            Consolidates smallholder batches into 3,500 kg commercial truck sweeps. Leafy greens (&lt; 24h shelf-life) receive an urgency multiplier of 3.5x to guarantee priority sweep order.
+          </p>
+          <div id="routes-log-container" class="audit-log-box" style="max-height:350px;">
+            <p style="color:#64748b;">Click "Generate Optimized Routes" to sweep active micro-hubs.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: FARMER ADVISORY & WEATHER -->
+      <section id="view-advisory" class="view-tab-pane">
+        <div class="page-main-header">
+          <div>
+            <div class="page-eyebrow">AGRONOMY INTELLIGENCE</div>
+            <h1 class="page-main-title">Weather & Harvest Timing Risk</h1>
+          </div>
+        </div>
+
+        <div class="grid-3col">
+          <div class="card-container">
+            <h2 class="card-header-title" style="font-size:1.1rem; margin-bottom:0.5rem;">⛅ Nashik Weather</h2>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--agri-green); margin:0.5rem 0;">26°C Sunny</div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Optimal morning harvest window between 6:00 AM - 9:30 AM before heat degrades freshness score.</p>
+          </div>
+          <div class="card-container">
+            <h2 class="card-header-title" style="font-size:1.1rem; margin-bottom:0.5rem;">🌱 Soil Profile</h2>
+            <div style="font-size:1.2rem; font-weight:700; color:var(--text-dark); margin:0.5rem 0;">Alluvial / Loamy</div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Nitrogen balance healthy. Recommended bio-potash top-dress before next tomato bloom.</p>
+          </div>
+          <div class="card-container">
+            <h2 class="card-header-title" style="font-size:1.1rem; margin-bottom:0.5rem;">🛡️ Spoilage Risk Index</h2>
+            <div style="font-size:1.8rem; font-weight:800; color:#10b981; margin:0.5rem 0;">Low (92/100)</div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Direct refrigerated hub collection keeps post-harvest loss below 2.5%.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- FLOATING VOICE ASSISTANT MICROPHONE WIDGET (Matching Screenshot Bottom Right) -->
+  <div class="floating-voice-widget">
+    <button id="floating-mic-btn" class="floating-mic-button" onclick="toggleVoiceDrawer()" title="Farmer Multilingual Voice Assistant">
+      🎙️
+    </button>
+  </div>
+
+  <!-- VOICE ASSISTANT SLIDE-UP DRAWER -->
+  <div id="voice-drawer-panel" class="voice-drawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem; font-weight:700; color:var(--agri-green-dark); display:flex; align-items:center; gap:0.4rem;">
+        🎙️ Farmer Voice Assistant
+      </h3>
+      <button onclick="toggleVoiceDrawer()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#64748b;">✕</button>
+    </div>
+
+    <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.75rem;">
+      Speak in Hindi, Marathi, Telugu, or English to check prices or log harvests:
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.35rem; margin-bottom:0.75rem;">
+      <button class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.6rem; justify-content:flex-start;" onclick="sendVoicePrompt('आज टमाटर का क्या भाव है?', 'hi')">
+        🗣️ "आज टमाटर का क्या भाव है?"
+      </button>
+      <button class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.6rem; justify-content:flex-start;" onclick="sendVoicePrompt('मैंने 200 किलो शिमला मिर्च की कटाई की है', 'hi')">
+        🗣️ "200 किलो शिमला मिर्च कटाई"
+      </button>
+      <button class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.6rem; justify-content:flex-start;" onclick="sendVoicePrompt('मला खत आणि बियाण्यासाठी कर्ज हवे आहे', 'mr')">
+        🗣️ "कर्ज हवे आहे (मराठी)"
+      </button>
+    </div>
+
+    <button id="drawer-record-btn" class="btn btn-agri-dark" style="width:100%; justify-content:center; padding:0.6rem; margin-bottom:0.75rem;" onclick="toggleBrowserSpeech()">
+      🎤 Tap to Speak Now
+    </button>
+
+    <div id="voice-reply-box" style="background:#f4f8f2; border:1px solid var(--border-subtle); border-radius:8px; padding:0.6rem; font-size:0.78rem; color:var(--text-dark);">
+      <p style="color:#64748b;">Waiting for voice input...</p>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Tab switching
+    function switchSection(sectionId) {
+      document.querySelectorAll('.view-tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.role-pill-btn').forEach(b => b.classList.remove('active'));
+
+      const targetPane = document.getElementById(sectionId);
+      if (targetPane) targetPane.classList.add('active');
+
+      const matchingNav = Array.from(document.querySelectorAll('.nav-item-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(sectionId));
+      if (matchingNav) matchingNav.classList.add('active');
+
+      if (sectionId === 'view-command-center') loadCommandCenterData();
+    }
+
+    // Preview photo upload
+    function previewUploadedImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('live-vision-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // 1. AI Crop Grading
+    let activeGradingId = null;
+    async function runAIGradingScan() {
+      const batchId = document.getElementById('grade-batch-select').value;
+      const sizeVal = parseFloat(document.getElementById('val-size').innerText);
+      const colorVal = parseFloat(document.getElementById('val-color').innerText);
+      const defectVal = parseFloat(document.getElementById('val-defect').innerText);
+      const confVal = parseFloat(document.getElementById('val-conf').innerText);
+
+      document.getElementById('live-batch-label').innerText = batchId;
+
+      const payload = {
+        batch_id: batchId,
+        simulation_size_uniformity: sizeVal,
+        simulation_color_uniformity: colorVal,
+        simulation_surface_defect_pct: defectVal,
+        simulation_confidence_score: confVal
+      };
+
+      try {
+        const res = await fetch('/api/v1/grading/scan/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const badge = document.getElementById('vision-grade-badge');
+        const manualBox = document.getElementById('manual-review-box');
+
+        if (data.human_in_the_loop_required) {
+          badge.style.background = '#f59e0b';
+          badge.innerText = 'FLAGGED FOR MANUAL REVIEW';
+          manualBox.style.display = 'block';
+          activeGradingId = data.grading.grading_id;
+        } else {
+          badge.style.background = data.grading.final_grade === 'GRADE_A' ? '#facc15' : '#86efac';
+          badge.innerText = data.grading.final_grade + ' (VERIFIED)';
+          manualBox.style.display = 'none';
+        }
+
+        document.getElementById('grading-audit-log').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        alert('Grading error: ' + err);
+      }
+    }
+
+    async function submitManualReview(grade) {
+      if (!activeGradingId) return;
+      try {
+        const res = await fetch('/api/v1/grading/manual-review/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            grading_id: activeGradingId,
+            override_grade: grade,
+            reviewer_notes: "Physical visual audit completed by Hub Manager. Commercial grade verified."
+          })
+        });
+        const data = await res.json();
+        document.getElementById('manual-review-box').style.display = 'none';
+        const badge = document.getElementById('vision-grade-badge');
+        badge.style.background = '#facc15';
+        badge.innerText = data.effective_grade + ' (AUDITED)';
+        document.getElementById('grading-audit-log').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        alert('Manual override failed: ' + err);
+      }
+    }
+
+    // 2. Dynamic Pricing
+    async function calculateDynamicPricing() {
+      const batchId = document.getElementById('grade-batch-select').value;
+      try {
+        const res = await fetch('/api/v1/pricing/calculate/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batch_id: batchId })
+        });
+        const data = await res.json();
+        document.getElementById('pricing-breakdown-log').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        document.getElementById('price-floor-badge').innerText = data.price_floor_enforced ? 'Floor Shield Enforced' : 'Premium Offer';
+      } catch (err) {
+        alert('Pricing error: ' + err);
+      }
+    }
+
+    async function acceptDynamicPricingOffer() {
+      const batchId = document.getElementById('grade-batch-select').value;
+      try {
+        const res = await fetch('/api/v1/pricing/accept-offer/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batch_id: batchId })
+        });
+        const data = await res.json();
+        alert('Price offer accepted by farmer! Proceed to Agri-Fintech Payout.');
+        document.getElementById('pricing-breakdown-log').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (err) {
+        alert('Accept error: ' + err);
+      }
+    }
+
+    // 3. Agri-Fintech Settlement
+    async function settleHarvestPayout() {
+      const batchId = 'K2K-2026-TOM-DEMO01';
+      try {
+        const res = await fetch('/api/v1/fintech/settle-payout/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batch_id: batchId, payment_channel: 'INSTANT_UPI' })
+        });
+        const data = await res.json();
+        document.getElementById('fintech-receipt-log').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        if (data.itemized_receipt) {
+          document.getElementById('card-wallet-bal').innerText = '₹' + data.itemized_receipt.farmer_wallet_new_balance.toLocaleString();
+        }
+        alert('Digital harvest payout disbursed via UPI with automated input loan recovery!');
+        loadCommandCenterData();
+      } catch (err) {
+        alert('Settlement error: ' + err);
+      }
+    }
+
+    // 4. Command Center Telemetry
+    async function loadCommandCenterData() {
+      try {
+        const res = await fetch('/api/v1/command-center/overview/');
+        const data = await res.json();
+
+        // Crops stock table
+        let cropsHtml = '<table class="agri-table"><thead><tr><th>Crop</th><th>Tier</th><th>Stock</th><th>MSP Floor</th></tr></thead><tbody>';
+        data.active_crops_stock.forEach(c => {
+          cropsHtml += `<tr>
+            <td class="crop-title-cell">${c.name}</td>
+            <td><span class="status-badge badge-planting">${c.perishability_tier}</span></td>
+            <td>${c.current_hub_stock_kg} kg</td>
+            <td>₹${c.base_msp_floor}/kg</td>
+          </tr>`;
+        });
+        cropsHtml += '</tbody></table>';
+        document.getElementById('cmd-crops-container').innerHTML = cropsHtml;
+
+        // Demand orders
+        let demandHtml = '<table class="agri-table"><thead><tr><th>Order</th><th>Retailer</th><th>Crop</th><th>Unmatched</th></tr></thead><tbody>';
+        data.unmatched_demand_orders.forEach(o => {
+          demandHtml += `<tr>
+            <td><code>${o.order_id}</code></td>
+            <td>${o.retailer_name}</td>
+            <td>${o.crop}</td>
+            <td><span class="status-badge badge-growing">${o.unmatched_kg} kg</span></td>
+          </tr>`;
+        });
+        demandHtml += '</tbody></table>';
+        document.getElementById('cmd-demand-container').innerHTML = demandHtml;
+
+        // Fleet telemetry
+        let fleetHtml = '<table class="agri-table"><thead><tr><th>Vehicle</th><th>Driver</th><th>Payload</th><th>Cold Chain</th><th>Status</th></tr></thead><tbody>';
+        data.fleet_telemetry.forEach(v => {
+          fleetHtml += `<tr>
+            <td class="crop-title-cell">${v.vehicle_number}</td>
+            <td>${v.driver_name} (${v.driver_phone})</td>
+            <td>${v.max_payload_kg} kg</td>
+            <td>${v.has_cold_chain ? '✅ Reefer Box' : 'Standard'}</td>
+            <td><span class="status-badge badge-at-hub">${v.status}</span></td>
+          </tr>`;
+        });
+        fleetHtml += '</tbody></table>';
+        document.getElementById('cmd-fleet-container').innerHTML = fleetHtml;
+
+      } catch (err) {
+        console.error('Command center loading error:', err);
+      }
+    }
+
+    // 5. Route Optimizer
+    async function triggerRouteOptimization() {
+      try {
+        const res = await fetch('/api/v1/logistics/optimize-routes/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const data = await res.json();
+        document.getElementById('routes-log-container').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        switchSection('view-routes-logistics');
+      } catch (err) {
+        alert('Route optimization error: ' + err);
+      }
+    }
+
+    // 6. Voice Assistant Drawer
+    function toggleVoiceDrawer() {
+      const drawer = document.getElementById('voice-drawer-panel');
+      drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
+    }
+
+    async function sendVoicePrompt(promptText, lang) {
+      document.getElementById('voice-reply-box').innerHTML = `<p style="color:#64748b;">Processing: "${promptText}"...</p>`;
+      try {
+        const res = await fetch('/api/v1/voice-assistant/process-command/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            voice_transcript: promptText,
+            language: lang,
+            farmer_phone: "+919876543210"
+          })
+        });
+        const data = await res.json();
+        document.getElementById('voice-reply-box').innerHTML = `
+          <p style="font-weight:700; color:var(--agri-green);">Intent: ${data.intent}</p>
+          <p style="margin-top:0.4rem; color:var(--text-dark);">"${data.voice_reply_text}"</p>
+        `;
+
+        // Browser speech synthesis
+        if ('speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance(data.voice_reply_text);
+          utterance.lang = lang === 'hi' ? 'hi-IN' : (lang === 'mr' ? 'mr-IN' : 'en-IN');
+          window.speechSynthesis.speak(utterance);
+        }
+      } catch (err) {
+        alert('Voice error: ' + err);
+      }
+    }
+
+    function toggleBrowserSpeech() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Web Speech API is not supported in this browser. Please use the quick sample prompt buttons!');
+        return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'hi-IN';
+      const btn = document.getElementById('drawer-record-btn');
+      const micBtn = document.getElementById('floating-mic-btn');
+
+      recognition.onstart = function() {
+        btn.innerText = '🔴 Listening... Speak now';
+        micBtn.classList.add('listening');
+      };
+      recognition.onresult = function(event) {
+        const text = event.results[0][0].transcript;
+        btn.innerText = '🎤 Tap to Speak Now';
+        micBtn.classList.remove('listening');
+        sendVoicePrompt(text, 'hi');
+      };
+      recognition.onerror = function() {
+        btn.innerText = '🎤 Tap to Speak Now';
+        micBtn.classList.remove('listening');
+      };
+      recognition.start();
+    }
+
+    // Auto-load telemetry
+    window.addEventListener('DOMContentLoaded', loadCommandCenterData);
+  </script>
+</body>
+</html>

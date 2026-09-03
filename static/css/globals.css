@@ -1,0 +1,33 @@
+/* Project Khet2Kitchen (K2K) Global Agritech Design Tokens */
+:root {
+  --bg-canvas: #f4f6f1;
+  --bg-canvas-subtle: #ebf0e6;
+  --bg-white: #ffffff;
+  --bg-sidebar: #233d32;
+  --bg-sidebar-hover: #2b493c;
+  --bg-sidebar-active: #315344;
+  --bg-sage-card: #f9faf7;
+  --bg-sage-pill: #e5ece0;
+  
+  --text-dark: #192a20;
+  --text-sidebar: #e2ede5;
+  --text-sidebar-muted: #95b3a1;
+  --text-muted: #5e7064;
+
+  --agri-green: #2b4c3f;
+  --agri-green-dark: #1b3329;
+  --agri-green-hover: #376150;
+  --agri-emerald: #10b981;
+  --agri-sage: #8da391;
+  --agri-olive: #6b8068;
+  --agri-gold: #eab308;
+  --agri-amber: #f59e0b;
+  --agri-rose: #e11d48;
+
+  --border-subtle: #e1e7dc;
+  --border-light: #d4ded0;
+
+  --shadow-sm: 0 1px 3px rgba(25, 42, 32, 0.05);
+  --shadow-md: 0 4px 14px rgba(25, 42, 32, 0.06);
+  --shadow-lg: 0 10px 28px rgba(25, 42, 32, 0.09);
+}
