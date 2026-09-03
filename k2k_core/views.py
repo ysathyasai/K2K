@@ -52,7 +52,8 @@ from k2k_core.services import (
     AIGradingEngine,
     DynamicPricingEngine,
     AgriFintechSettlementEngine,
-    DynamicRoutingEngine
+    DynamicRoutingEngine,
+    WeatherIntelligenceEngine
 )
 
 
@@ -559,3 +560,24 @@ class HarvestScheduleViewSet(viewsets.ModelViewSet):
 class ProduceBatchViewSet(viewsets.ModelViewSet):
     queryset = ProduceBatch.objects.all().order_by('-created_at')
     serializer_class = ProduceBatchSerializer
+
+
+# ==============================================================================
+# 8. LIVE WEATHER INTELLIGENCE & AGRONOMIC ADVISORY
+# ==============================================================================
+
+class LiveWeatherAdvisoryView(APIView):
+    """
+    GET /api/v1/advisory/weather/?latitude=20.0768&longitude=74.1105
+    Fetches real-time weather from Open-Meteo for given coordinates and outputs AI agronomic advisory.
+    """
+    def get(self, request):
+        try:
+            lat = float(request.query_params.get('latitude', 20.0768))
+            lon = float(request.query_params.get('longitude', 74.1105))
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid latitude or longitude format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        advisory_data = WeatherIntelligenceEngine.get_weather_and_agronomic_advisory(latitude=lat, longitude=lon)
+        return Response(advisory_data, status=status.HTTP_200_OK)
+

@@ -7,6 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet.js OpenStreetMap Assets -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
   <style>
     :root {
       /* Clean Agricultural Green & Sage Light Palette */
@@ -763,6 +768,40 @@
       display: block;
     }
 
+    /* Leaflet Custom Map Polish */
+    .leaflet-container {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      background: #e8ede6 !important;
+    }
+    .leaflet-popup-content-wrapper {
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(25, 42, 32, 0.14);
+      border: 1px solid var(--border-subtle);
+      padding: 2px;
+    }
+    .leaflet-popup-content {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--text-dark);
+      margin: 10px 14px;
+    }
+    .custom-farm-pin {
+      transition: transform 0.15s ease;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.28));
+    }
+    .custom-farm-pin:hover {
+      transform: scale(1.15);
+    }
+    .leaflet-control-zoom a {
+      background: #ffffff !important;
+      color: var(--agri-green-dark) !important;
+      border-color: var(--border-subtle) !important;
+      font-weight: 700 !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: #f4f6f1 !important;
+    }
+
     @media (max-width: 1024px) {
       .app-sidebar { width: 220px; }
       .grid-2col, .grid-3col, .grid-4col { grid-template-columns: 1fr; }
@@ -973,6 +1012,78 @@
             <div class="metric-stat-title">Guaranteed MSP Floor</div>
             <div class="metric-stat-val">₹14.00/kg</div>
             <div class="metric-stat-footer">Protected against market gluts</div>
+          </div>
+        </div>
+
+        <!-- 📍 Interactive Farm Geolocation (OpenStreetMap) & Live Weather Intelligence -->
+        <div class="card-container" style="margin-top: 1.5rem;">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-header-title">📍 Farm Geolocation & Live Weather Intelligence</h2>
+              <p class="card-header-subtitle">OpenStreetMap micro-climate tracking with real-time Open-Meteo satellite & station telemetry.</p>
+            </div>
+            <div style="display: flex; gap: 0.6rem; align-items: center;">
+              <span id="map-geo-status-badge" class="status-badge badge-planting">📍 Auto-Detecting GPS...</span>
+              <button class="btn btn-agri-dark" style="font-size: 0.78rem; padding: 0.35rem 0.8rem;" onclick="autoDetectGPSLocation()">🎯 Auto-Detect GPS</button>
+            </div>
+          </div>
+
+          <div class="grid-2col">
+            <!-- Left: Interactive OpenStreetMap with Draggable Pin -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+                <span>Coordinates: <strong id="active-lat-lon" style="color: var(--agri-green); font-family: 'JetBrains Mono', monospace;">20.0768° N, 74.1105° E</strong></span>
+                <span>💡 <em>Click map or drag pin</em></span>
+              </div>
+              <div id="farm-osm-map" style="height: 320px; border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; box-shadow: var(--shadow-sm); z-index: 1;"></div>
+            </div>
+
+            <!-- Right: Real-time Weather & AI Advisory -->
+            <div>
+              <!-- 4-metric mini grid -->
+              <div class="grid-2col" style="gap: 0.75rem; margin-bottom: 0.85rem;">
+                <div style="background: var(--bg-sage-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.75rem 1rem;">
+                  <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Ambient Temperature</div>
+                  <div id="weather-temp-val" style="font-size: 1.6rem; font-weight: 800; color: var(--agri-green-dark);">27.3°C</div>
+                  <div id="weather-condition-val" style="font-size: 0.75rem; color: var(--agri-olive); font-weight: 600;">Clear Sunny Sky</div>
+                </div>
+
+                <div style="background: var(--bg-sage-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.75rem 1rem;">
+                  <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Relative Humidity</div>
+                  <div id="weather-humidity-val" style="font-size: 1.6rem; font-weight: 800; color: #0284c7;">64%</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Precipitation: <strong id="weather-precip-val" style="color: var(--text-dark);">0.0 mm</strong></div>
+                </div>
+              </div>
+
+              <!-- AI Agronomic Guidance Banners -->
+              <div id="weather-harvest-banner" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.6rem;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #166534; margin-bottom: 0.2rem;">🚜 AI Harvest Timing Recommendation</div>
+                <div id="harvest-advisory-text" style="font-size: 0.82rem; color: #14532d; font-weight: 500;">
+                  OPTIMAL HARVEST WINDOW: Clear sky and mild temperature. Ideal picking conditions (6:00 AM - 10:30 AM).
+                </div>
+              </div>
+
+              <div id="weather-transit-alert" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.6rem;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #1e40af; margin-bottom: 0.2rem;">🚚 Transit Cooling & Perishability Urgency</div>
+                <div id="transit-advisory-text" style="font-size: 0.82rem; color: #1e3a8a; font-weight: 500;">
+                  STANDARD VENTILATED TRANSIT: Ambient temperature suitable for short hub transfers (&lt; 3 hrs).
+                </div>
+              </div>
+
+              <div style="background: var(--bg-white); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                  <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-dark);">Post-Harvest Spoilage Risk Index</span>
+                  <span id="spoilage-risk-num" style="font-size: 0.85rem; font-weight: 800; color: #10b981;">17 / 100 (Safe)</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: #e2e8df; border-radius: 3px; overflow: hidden; margin-bottom: 0.4rem;">
+                  <div id="spoilage-risk-bar" style="width: 17%; height: 100%; background: #10b981; border-radius: 3px; transition: width 0.3s ease;"></div>
+                </div>
+                <div id="disease-advisory-text" style="font-size: 0.75rem; color: var(--text-muted);">
+                  Low pest and fungal pressure. Standard bio-pesticide schedule maintained.
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </section>
@@ -1200,26 +1311,98 @@
       <section id="view-advisory" class="view-tab-pane">
         <div class="page-main-header">
           <div>
-            <div class="page-eyebrow">AGRONOMY INTELLIGENCE</div>
-            <h1 class="page-main-title">Weather & Harvest Timing Risk</h1>
+            <div class="page-eyebrow">LIVE SATELLITE & TELEMETRY ADVISORY</div>
+            <h1 class="page-main-title">Weather & Agronomic Risk Engine</h1>
+          </div>
+          <div class="page-actions-group">
+            <button class="btn btn-outline" onclick="switchSection('view-farmer-dashboard')">⬅️ Farmer Dashboard</button>
+            <button class="btn btn-agri-dark" onclick="autoDetectGPSLocation()">🎯 Detect My GPS</button>
           </div>
         </div>
 
         <div class="grid-3col">
           <div class="card-container">
-            <h2 class="card-header-title" style="font-size:1.1rem; margin-bottom:0.5rem;">⛅ Nashik Weather</h2>
-            <div style="font-size:1.8rem; font-weight:800; color:var(--agri-green); margin:0.5rem 0;">26°C Sunny</div>
-            <p style="font-size:0.8rem; color:var(--text-muted);">Optimal morning harvest window between 6:00 AM - 9:30 AM before heat degrades freshness score.</p>
+            <div class="card-header-row">
+              <h2 class="card-header-title" style="font-size:1.05rem;">⛅ Current Weather</h2>
+              <span class="status-badge badge-growing">Live Telemetry</span>
+            </div>
+            <div id="adv-weather-temp" style="font-size:2.2rem; font-weight:800; color:var(--agri-green); margin:0.3rem 0;">27.3°C</div>
+            <div id="adv-weather-cond" style="font-weight:600; color:var(--agri-olive); margin-bottom:0.5rem;">Clear Sunny Sky</div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">
+              Relative Humidity: <strong id="adv-weather-humidity">64%</strong><br>
+              Precipitation: <strong id="adv-weather-precip">0.0 mm</strong><br>
+              Source: Open-Meteo Live Satellite & Station Mesh
+            </p>
           </div>
+
           <div class="card-container">
-            <h2 class="card-header-title" style="font-size:1.1rem; margin-bottom:0.5rem;">🌱 Soil Profile</h2>
-            <div style="font-size:1.2rem; font-weight:700; color:var(--text-dark); margin:0.5rem 0;">Alluvial / Loamy</div>
-            <p style="font-size:0.8rem; color:var(--text-muted);">Nitrogen balance healthy. Recommended bio-potash top-dress before next tomato bloom.</p>
+            <div class="card-header-row">
+              <h2 class="card-header-title" style="font-size:1.05rem;">🚜 Harvest Timing AI</h2>
+              <span class="status-badge badge-at-hub">Recommended</span>
+            </div>
+            <div id="adv-harvest-window" style="font-size:0.88rem; font-weight:700; color:#166534; line-height:1.4; margin:0.5rem 0;">
+              OPTIMAL HARVEST WINDOW: Clear sky and mild temperature. Ideal picking conditions (6:00 AM - 10:30 AM).
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">
+              Early morning picking minimizes field heat buildup, retaining up to 30% higher firmness upon arrival at urban retail hubs.
+            </p>
           </div>
+
           <div class="card-container">
-            <h2 class="card-header-title" style="font-size:1.1rem; margin-bottom:0.5rem;">🛡️ Spoilage Risk Index</h2>
-            <div style="font-size:1.8rem; font-weight:800; color:#10b981; margin:0.5rem 0;">Low (92/100)</div>
-            <p style="font-size:0.8rem; color:var(--text-muted);">Direct refrigerated hub collection keeps post-harvest loss below 2.5%.</p>
+            <div class="card-header-row">
+              <h2 class="card-header-title" style="font-size:1.05rem;">🛡️ Spoilage & Cold Chain</h2>
+              <span id="adv-spoilage-badge" class="status-badge badge-growing">Low Risk</span>
+            </div>
+            <div id="adv-spoilage-risk" style="font-size:2.2rem; font-weight:800; color:#10b981; margin:0.3rem 0;">17 / 100</div>
+            <div id="adv-transit-priority" style="font-size:0.82rem; font-weight:600; color:#1e40af; margin-bottom:0.4rem;">
+              STANDARD VENTILATED TRANSIT: Short hub distance suitable.
+            </div>
+            <p id="adv-disease-text" style="font-size:0.8rem; color:var(--text-muted);">
+              Low pest and fungal pressure. Standard bio-pesticide schedule maintained.
+            </p>
+          </div>
+        </div>
+
+        <!-- Interactive Micro-Climate & OpenStreetMap Radar Section -->
+        <div class="card-container" style="margin-top: 1.5rem;">
+          <div class="card-header-row">
+            <div>
+              <h2 class="card-header-title">📍 Interactive Micro-Climate Radar & Geolocation Map</h2>
+              <p class="card-header-subtitle">Click anywhere on the map or drag the pin across agricultural clusters to update real-time satellite weather and harvest advisories.</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              <span id="adv-map-geo-status" class="status-badge badge-growing">📍 Live GPS Active</span>
+              <button class="btn btn-agri-dark" style="font-size: 0.78rem; padding: 0.35rem 0.8rem;" onclick="autoDetectGPSLocation()">🎯 Auto-Detect GPS</button>
+            </div>
+          </div>
+
+          <!-- Quick Preset Clusters -->
+          <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; font-size: 0.78rem;">
+            <span style="font-weight: 700; color: var(--text-muted);">Quick Cluster Presets:</span>
+            <button class="btn btn-outline" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 20px;" onclick="setPresetLocation(20.0768, 74.1105, 'Nashik Tomato Cluster')">🍅 Nashik Tomato Cluster</button>
+            <button class="btn btn-outline" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 20px;" onclick="setPresetLocation(19.2065, 73.8761, 'Junnar Capsicum Hub')">🫑 Junnar Capsicum Hub</button>
+            <button class="btn btn-outline" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 20px;" onclick="setPresetLocation(18.5204, 73.8567, 'Pune Urban Retail Hub')">🏙️ Pune Retail Hub</button>
+            <button class="btn btn-outline" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 20px;" onclick="setPresetLocation(19.9975, 73.7898, 'Nashik APMC Gateway')">🚜 Nashik APMC Gateway</button>
+            <span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--agri-green); font-weight: 600;" id="adv-active-lat-lon">20.0768° N, 74.1105° E</span>
+          </div>
+
+          <!-- Map Container with sleek border, rounded corners, and radar badge -->
+          <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm);">
+            <div id="advisory-osm-map" style="height: 420px; width: 100%; z-index: 1;"></div>
+            
+            <!-- Live Radar Status Overlay -->
+            <div style="position: absolute; bottom: 14px; left: 14px; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(8px); border: 1px solid rgba(225, 231, 220, 0.9); border-radius: 8px; padding: 0.6rem 0.9rem; z-index: 1000; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08); font-size: 0.76rem; display: flex; align-items: center; gap: 0.65rem;">
+              <span class="pulse-dot-green" style="width: 9px; height: 9px;"></span>
+              <div>
+                <div style="font-weight: 700; color: var(--agri-green-dark);">Live Open-Meteo Telemetry Mesh</div>
+                <div style="color: var(--text-muted); font-size: 0.68rem;">Resolution: 1.1 km • Updates every 15 mins • WMO Compliant</div>
+              </div>
+            </div>
+
+            <!-- Drag/Click Instruction Pill -->
+            <div style="position: absolute; top: 14px; right: 14px; background: rgba(35, 61, 50, 0.88); backdrop-filter: blur(6px); color: #ffffff; border-radius: 20px; padding: 0.35rem 0.75rem; z-index: 1000; font-size: 0.72rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+              💡 Click map or drag pin to inspect micro-climates
+            </div>
           </div>
         </div>
       </section>
@@ -1283,6 +1466,28 @@
       if (matchingNav) matchingNav.classList.add('active');
 
       if (sectionId === 'view-command-center') loadCommandCenterData();
+
+      if (sectionId === 'view-farmer-dashboard') {
+        if (!farmMap) {
+          initFarmMap(currentLat, currentLon);
+        } else {
+          setTimeout(() => {
+            farmMap.invalidateSize();
+            farmMap.setView([currentLat, currentLon]);
+          }, 120);
+        }
+      }
+
+      if (sectionId === 'view-advisory') {
+        if (!advisoryMap) {
+          initAdvisoryMap(currentLat, currentLon);
+        } else {
+          setTimeout(() => {
+            advisoryMap.invalidateSize();
+            advisoryMap.setView([currentLat, currentLon]);
+          }, 120);
+        }
+      }
     }
 
     // Preview photo upload
@@ -1550,8 +1755,289 @@
       recognition.start();
     }
 
-    // Auto-load telemetry
-    window.addEventListener('DOMContentLoaded', loadCommandCenterData);
+    // ==========================================
+    // LEAFLET OPENSTREETMAP & LIVE WEATHER ADVISORY
+    // ==========================================
+    let farmMap = null;
+    let farmMarker = null;
+    let advisoryMap = null;
+    let advisoryMarker = null;
+    let currentLat = 20.0768;
+    let currentLon = 74.1105;
+
+    function createAgriPinIcon() {
+      return L.divIcon({
+        className: 'custom-farm-pin',
+        html: `<div style="background:#2b4c3f; border:2px solid #ffffff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:16px; box-shadow:0 4px 14px rgba(0,0,0,0.35); cursor:pointer;">🌱</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+    }
+
+    function initFarmMap(lat, lon) {
+      currentLat = lat;
+      currentLon = lon;
+      const container = document.getElementById('farm-osm-map');
+      if (!container) return;
+
+      if (farmMap) {
+        try { farmMap.remove(); } catch(e) {}
+        farmMap = null;
+      }
+
+      farmMap = L.map('farm-osm-map', {
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).setView([lat, lon], 12);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(farmMap);
+
+      farmMarker = L.marker([lat, lon], {
+        draggable: true,
+        icon: createAgriPinIcon()
+      }).addTo(farmMap);
+
+      farmMarker.bindPopup(`<strong>🌱 Farm Drop Point</strong><br><small>Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}</small><br><em>Drag or click map to move</em>`).openPopup();
+
+      farmMarker.on('dragend', function(e) {
+        const pos = e.target.getLatLng();
+        updateLocationAndWeather(pos.lat, pos.lng, 'Manual Pin Drag');
+      });
+
+      farmMap.on('click', function(e) {
+        farmMarker.setLatLng(e.latlng);
+        updateLocationAndWeather(e.latlng.lat, e.latlng.lng, 'Map Click');
+      });
+
+      setTimeout(() => { if (farmMap) farmMap.invalidateSize(); }, 200);
+      fetchWeatherAdvisory(lat, lon);
+    }
+
+    function initAdvisoryMap(lat, lon) {
+      currentLat = lat;
+      currentLon = lon;
+      const container = document.getElementById('advisory-osm-map');
+      if (!container) return;
+
+      if (advisoryMap) {
+        try { advisoryMap.remove(); } catch(e) {}
+        advisoryMap = null;
+      }
+
+      advisoryMap = L.map('advisory-osm-map', {
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).setView([lat, lon], 12);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(advisoryMap);
+
+      advisoryMarker = L.marker([lat, lon], {
+        draggable: true,
+        icon: createAgriPinIcon()
+      }).addTo(advisoryMap);
+
+      advisoryMarker.bindPopup(`<strong>🌱 Micro-Climate Station</strong><br><small>Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}</small><br><em>Drag or click map to inspect weather</em>`).openPopup();
+
+      advisoryMarker.on('dragend', function(e) {
+        const pos = e.target.getLatLng();
+        updateLocationAndWeather(pos.lat, pos.lng, 'Radar Pin Drag');
+      });
+
+      advisoryMap.on('click', function(e) {
+        advisoryMarker.setLatLng(e.latlng);
+        updateLocationAndWeather(e.latlng.lat, e.latlng.lng, 'Radar Map Click');
+      });
+
+      setTimeout(() => { if (advisoryMap) advisoryMap.invalidateSize(); }, 200);
+      fetchWeatherAdvisory(lat, lon);
+    }
+
+    function setPresetLocation(lat, lon, label) {
+      currentLat = lat;
+      currentLon = lon;
+      updateLocationAndWeather(lat, lon, label);
+
+      if (farmMap) {
+        farmMap.flyTo([lat, lon], 13);
+        if (farmMarker) farmMarker.setLatLng([lat, lon]);
+      }
+      if (advisoryMap) {
+        advisoryMap.flyTo([lat, lon], 13);
+        if (advisoryMarker) advisoryMarker.setLatLng([lat, lon]);
+      }
+    }
+
+    function updateLocationAndWeather(lat, lon, triggerSource) {
+      currentLat = lat;
+      currentLon = lon;
+      
+      const coordEl = document.getElementById('active-lat-lon');
+      const advCoordEl = document.getElementById('adv-active-lat-lon');
+      const badgeEl = document.getElementById('map-geo-status-badge');
+      const advBadgeEl = document.getElementById('adv-map-geo-status');
+
+      const coordText = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+      if (coordEl) coordEl.innerText = coordText;
+      if (advCoordEl) advCoordEl.innerText = coordText;
+
+      const badgeText = `📍 ${triggerSource}`;
+      if (badgeEl) badgeEl.innerText = badgeText;
+      if (advBadgeEl) advBadgeEl.innerText = badgeText;
+
+      if (farmMarker) {
+        farmMarker.setLatLng([lat, lon]);
+        farmMarker.setPopupContent(`<strong>🌱 Farm Drop Point</strong><br><small>${coordText}</small><br><em>${triggerSource}</em>`);
+      }
+      if (advisoryMarker) {
+        advisoryMarker.setLatLng([lat, lon]);
+        advisoryMarker.setPopupContent(`<strong>🌱 Micro-Climate Station</strong><br><small>${coordText}</small><br><em>${triggerSource}</em>`);
+      }
+
+      fetchWeatherAdvisory(lat, lon);
+    }
+
+    async function fetchWeatherAdvisory(lat, lon) {
+      try {
+        const res = await fetch(`/api/v1/advisory/weather/?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}`);
+        const data = await res.json();
+        
+        if (data.telemetry) {
+          const t = data.telemetry;
+          const tempEl = document.getElementById('weather-temp-val');
+          const condEl = document.getElementById('weather-condition-val');
+          const humEl = document.getElementById('weather-humidity-val');
+          const precEl = document.getElementById('weather-precip-val');
+          
+          if (tempEl) tempEl.innerText = `${t.temperature_celsius}°C`;
+          if (condEl) condEl.innerText = t.condition;
+          if (humEl) humEl.innerText = `${t.relative_humidity_percent}%`;
+          if (precEl) precEl.innerText = `${t.precipitation_mm} mm`;
+
+          // Also sync to View 6: Weather & Risk section
+          const advTemp = document.getElementById('adv-weather-temp');
+          const advCond = document.getElementById('adv-weather-cond');
+          const advHum = document.getElementById('adv-weather-humidity');
+          const advPrecip = document.getElementById('adv-weather-precip');
+          if (advTemp) advTemp.innerText = `${t.temperature_celsius}°C`;
+          if (advCond) advCond.innerText = t.condition;
+          if (advHum) advHum.innerText = `${t.relative_humidity_percent}%`;
+          if (advPrecip) advPrecip.innerText = `${t.precipitation_mm} mm`;
+        }
+
+        if (data.advisory) {
+          const adv = data.advisory;
+          const harvestEl = document.getElementById('harvest-advisory-text');
+          const harvestBox = document.getElementById('weather-harvest-banner');
+          if (harvestEl) harvestEl.innerText = adv.harvest_window;
+          if (harvestBox) harvestBox.style.borderColor = adv.harvest_badge_color;
+
+          const transitEl = document.getElementById('transit-advisory-text');
+          const transitBox = document.getElementById('weather-transit-alert');
+          if (transitEl) transitEl.innerText = adv.transit_cooling_priority;
+          if (transitBox) {
+            if (adv.requires_cold_chain) {
+              transitBox.style.background = '#fef2f2';
+              transitBox.style.borderColor = '#fecaca';
+              if (transitEl) transitEl.style.color = '#991b1b';
+            } else {
+              transitBox.style.background = '#eff6ff';
+              transitBox.style.borderColor = '#bfdbfe';
+              if (transitEl) transitEl.style.color = '#1e3a8a';
+            }
+          }
+
+          const riskNum = document.getElementById('spoilage-risk-num');
+          const riskBar = document.getElementById('spoilage-risk-bar');
+          if (riskNum) {
+            const riskLabel = adv.spoilage_risk_score > 50 ? 'High Alert' : (adv.spoilage_risk_score > 30 ? 'Caution' : 'Safe');
+            riskNum.innerText = `${adv.spoilage_risk_score} / 100 (${riskLabel})`;
+          }
+          if (riskBar) {
+            riskBar.style.width = `${adv.spoilage_risk_score}%`;
+            riskBar.style.background = adv.spoilage_risk_score > 50 ? '#e11d48' : (adv.spoilage_risk_score > 30 ? '#f59e0b' : '#10b981');
+          }
+
+          const disEl = document.getElementById('disease-advisory-text');
+          if (disEl) disEl.innerText = adv.disease_and_irrigation_advisory;
+
+          // Sync View 6 advisory fields
+          const advHarvest = document.getElementById('adv-harvest-window');
+          const advSpoilage = document.getElementById('adv-spoilage-risk');
+          const advSpoilageBadge = document.getElementById('adv-spoilage-badge');
+          const advTransit = document.getElementById('adv-transit-priority');
+          const advDisease = document.getElementById('adv-disease-text');
+          if (advHarvest) advHarvest.innerText = adv.harvest_window;
+          if (advSpoilage) advSpoilage.innerText = `${adv.spoilage_risk_score} / 100`;
+          if (advSpoilageBadge) {
+            advSpoilageBadge.innerText = adv.spoilage_risk_score > 50 ? 'High Risk' : (adv.spoilage_risk_score > 30 ? 'Caution' : 'Low Risk');
+            advSpoilageBadge.className = adv.spoilage_risk_score > 50 ? 'status-badge badge-planting' : 'status-badge badge-growing';
+          }
+          if (advTransit) advTransit.innerText = adv.transit_cooling_priority;
+          if (advDisease) advDisease.innerText = adv.disease_and_irrigation_advisory;
+        }
+      } catch (err) {
+        console.error('Weather advisory fetch error:', err);
+      }
+    }
+
+    function autoDetectGPSLocation() {
+      const statusBadge = document.getElementById('map-geo-status-badge');
+      const advBadge = document.getElementById('adv-map-geo-status');
+      if (statusBadge) statusBadge.innerText = 'Detecting GPS...';
+      if (advBadge) advBadge.innerText = 'Detecting GPS...';
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            currentLat = lat;
+            currentLon = lon;
+            
+            if (farmMap) {
+              farmMap.flyTo([lat, lon], 13);
+              if (farmMarker) farmMarker.setLatLng([lat, lon]);
+            } else {
+              initFarmMap(lat, lon);
+            }
+
+            if (advisoryMap) {
+              advisoryMap.flyTo([lat, lon], 13);
+              if (advisoryMarker) advisoryMarker.setLatLng([lat, lon]);
+            } else {
+              initAdvisoryMap(lat, lon);
+            }
+
+            updateLocationAndWeather(lat, lon, 'GPS Detected');
+          },
+          (err) => {
+            console.warn('Geolocation denied or timeout, using regional default:', err);
+            if (statusBadge) statusBadge.innerText = '📍 Default: Nashik Cluster';
+            if (advBadge) advBadge.innerText = '📍 Default: Nashik Cluster';
+            if (!farmMap) initFarmMap(20.0768, 74.1105);
+            if (!advisoryMap) initAdvisoryMap(20.0768, 74.1105);
+          },
+          { timeout: 7000, enableHighAccuracy: true }
+        );
+      } else {
+        if (statusBadge) statusBadge.innerText = '📍 Default: Nashik Cluster';
+        if (advBadge) advBadge.innerText = '📍 Default: Nashik Cluster';
+        if (!farmMap) initFarmMap(20.0768, 74.1105);
+        if (!advisoryMap) initAdvisoryMap(20.0768, 74.1105);
+      }
+    }
+
+    // Auto-load telemetry & initialize maps
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCommandCenterData();
+      autoDetectGPSLocation();
+    });
   </script>
 </body>
 </html>

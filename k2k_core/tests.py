@@ -369,3 +369,13 @@ class K2KCoreArchitectureTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['intent'], 'CHECK_PRICE')
         self.assertIn('voice_reply_text', res.data)
+
+    def test_api_live_weather_advisory_endpoint(self):
+        url = '/api/v1/advisory/weather/?latitude=20.0768&longitude=74.1105'
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('telemetry', res.data)
+        self.assertIn('advisory', res.data)
+        self.assertIn('temperature_celsius', res.data['telemetry'])
+        self.assertIn('harvest_window', res.data['advisory'])
+

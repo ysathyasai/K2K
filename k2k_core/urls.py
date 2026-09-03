@@ -14,6 +14,7 @@ from k2k_core.views import (
     TransitRouteListView,
     CommandCenterOverviewView,
     VoiceAssistantCommandView,
+    LiveWeatherAdvisoryView,
     CropViewSet,
     MicroHubViewSet,
     DemandOrderViewSet,
@@ -50,6 +51,9 @@ urlpatterns = [
 
     # 6. Farmer Multilingual Voice/UI NLP Assistant
     path('voice-assistant/process-command/', VoiceAssistantCommandView.as_view(), name='voice-assistant-command'),
+
+    # 7. Live Weather Intelligence & AI Agronomic Advisory
+    path('advisory/weather/', LiveWeatherAdvisoryView.as_view(), name='weather-advisory'),
 
     # Standard Browsable REST Resources
     path('', include(router.urls)),
