@@ -1,7 +1,7 @@
 services:
   # K2K Django REST Intelligence Engine & Agritech Web Service
   - type: web
-    name: k2k-intelligence-engine
+    name: K2K
     runtime: python
     buildCommand: "chmod +x build.sh && ./build.sh"
     startCommand: "gunicorn k2k_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
